@@ -2,8 +2,8 @@
     Electron Bot机器人控制器 - MCP协议版本
 */
 
-#include <cJSON.h>
 #include <esp_log.h>
+#include <cJSON.h>
 
 #include <cstring>
 

@@ -1,6 +1,6 @@
 #include "circular_strip.h"
-#include "application.h"
 #include <esp_log.h>
+#include "application.h"
 
 #define TAG "CircularStrip"
 
@@ -19,19 +19,20 @@ CircularStrip::CircularStrip(gpio_num_t gpio, uint8_t max_leds) : max_leds_(max_
     strip_config.led_model = LED_MODEL_WS2812;
 
     led_strip_rmt_config_t rmt_config = {};
-    rmt_config.resolution_hz = 10 * 1000 * 1000; // 10MHz
+    rmt_config.resolution_hz = 10 * 1000 * 1000;  // 10MHz
 
     ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip_));
     led_strip_clear(led_strip_);
 
     esp_timer_create_args_t strip_timer_args = {
-        .callback = [](void *arg) {
-            auto strip = static_cast<CircularStrip*>(arg);
-            std::lock_guard<std::mutex> lock(strip->mutex_);
-            if (strip->strip_callback_ != nullptr) {
-                strip->strip_callback_();
-            }
-        },
+        .callback =
+            [](void* arg) {
+                auto strip = static_cast<CircularStrip*>(arg);
+                std::lock_guard<std::mutex> lock(strip->mutex_);
+                if (strip->strip_callback_ != nullptr) {
+                    strip->strip_callback_();
+                }
+            },
         .arg = this,
         .dispatch_method = ESP_TIMER_TASK,
         .name = "strip_timer",
@@ -46,7 +47,6 @@ CircularStrip::~CircularStrip() {
         led_strip_del(led_strip_);
     }
 }
-
 
 void CircularStrip::SetAllColor(StripColor color) {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -74,7 +74,8 @@ void CircularStrip::Blink(StripColor color, int interval_ms) {
         static bool on = true;
         if (on) {
             for (int i = 0; i < max_leds_; i++) {
-                led_strip_set_pixel(led_strip_, i, colors_[i].red, colors_[i].green, colors_[i].blue);
+                led_strip_set_pixel(led_strip_, i, colors_[i].red, colors_[i].green,
+                                    colors_[i].blue);
             }
             led_strip_refresh(led_strip_);
         } else {
@@ -171,7 +172,7 @@ void CircularStrip::StartStripTask(int interval_ms, std::function<void()> cb) {
 
     std::lock_guard<std::mutex> lock(mutex_);
     esp_timer_stop(strip_timer_);
-    
+
     strip_callback_ = cb;
     esp_timer_start_periodic(strip_timer_, interval_ms * 1000);
 }
@@ -187,13 +188,13 @@ void CircularStrip::OnStateChanged() {
     auto device_state = app.GetDeviceState();
     switch (device_state) {
         case kDeviceStateStarting: {
-            StripColor low = { 0, 0, 0 };
-            StripColor high = { low_brightness_, low_brightness_, default_brightness_ };
+            StripColor low = {0, 0, 0};
+            StripColor high = {low_brightness_, low_brightness_, default_brightness_};
             Scroll(low, high, 3, 100);
             break;
         }
         case kDeviceStateWifiConfiguring: {
-            StripColor color = { low_brightness_, low_brightness_, default_brightness_ };
+            StripColor color = {low_brightness_, low_brightness_, default_brightness_};
             Blink(color, 500);
             break;
         }
@@ -201,28 +202,28 @@ void CircularStrip::OnStateChanged() {
             FadeOut(50);
             break;
         case kDeviceStateConnecting: {
-            StripColor color = { low_brightness_, low_brightness_, default_brightness_ };
+            StripColor color = {low_brightness_, low_brightness_, default_brightness_};
             SetAllColor(color);
             break;
         }
         case kDeviceStateListening:
         case kDeviceStateAudioTesting: {
-            StripColor color = { default_brightness_, low_brightness_, low_brightness_ };
+            StripColor color = {default_brightness_, low_brightness_, low_brightness_};
             SetAllColor(color);
             break;
         }
         case kDeviceStateSpeaking: {
-            StripColor color = { low_brightness_, default_brightness_, low_brightness_ };
+            StripColor color = {low_brightness_, default_brightness_, low_brightness_};
             SetAllColor(color);
             break;
         }
         case kDeviceStateUpgrading: {
-            StripColor color = { low_brightness_, default_brightness_, low_brightness_ };
+            StripColor color = {low_brightness_, default_brightness_, low_brightness_};
             Blink(color, 100);
             break;
         }
         case kDeviceStateActivating: {
-            StripColor color = { low_brightness_, default_brightness_, low_brightness_ };
+            StripColor color = {low_brightness_, default_brightness_, low_brightness_};
             Blink(color, 500);
             break;
         }

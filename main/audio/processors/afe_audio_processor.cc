@@ -5,12 +5,10 @@
 
 #define TAG "AfeAudioProcessor"
 
-AfeAudioProcessor::AfeAudioProcessor()
-    : afe_data_(nullptr) {
-    event_group_ = xEventGroupCreate();
-}
+AfeAudioProcessor::AfeAudioProcessor() : afe_data_(nullptr) { event_group_ = xEventGroupCreate(); }
 
-void AfeAudioProcessor::Initialize(AudioCodec* codec, int frame_duration_ms, srmodel_list_t* models_list) {
+void AfeAudioProcessor::Initialize(AudioCodec* codec, int frame_duration_ms,
+                                   srmodel_list_t* models_list) {
     codec_ = codec;
     frame_samples_ = frame_duration_ms * 16000 / 1000;
 
@@ -27,7 +25,7 @@ void AfeAudioProcessor::Initialize(AudioCodec* codec, int frame_duration_ms, srm
         input_format.push_back('R');
     }
 
-    srmodel_list_t *models;
+    srmodel_list_t* models;
     if (models_list == nullptr) {
         models = esp_srmodel_init("model");
     } else {
@@ -36,8 +34,9 @@ void AfeAudioProcessor::Initialize(AudioCodec* codec, int frame_duration_ms, srm
 
     char* ns_model_name = esp_srmodel_filter(models, ESP_NSNET_PREFIX, NULL);
     char* vad_model_name = esp_srmodel_filter(models, ESP_VADN_PREFIX, NULL);
-    
-    afe_config_t* afe_config = afe_config_init(input_format.c_str(), NULL, AFE_TYPE_VC, AFE_MODE_HIGH_PERF);
+
+    afe_config_t* afe_config =
+        afe_config_init(input_format.c_str(), NULL, AFE_TYPE_VC, AFE_MODE_HIGH_PERF);
     afe_config->aec_mode = AEC_MODE_VOIP_HIGH_PERF;
     afe_config->vad_mode = VAD_MODE_0;
     afe_config->vad_min_noise_ms = 100;
@@ -66,12 +65,14 @@ void AfeAudioProcessor::Initialize(AudioCodec* codec, int frame_duration_ms, srm
 
     afe_iface_ = esp_afe_handle_from_config(afe_config);
     afe_data_ = afe_iface_->create_from_config(afe_config);
-    
-    xTaskCreate([](void* arg) {
-        auto this_ = (AfeAudioProcessor*)arg;
-        this_->AudioProcessorTask();
-        vTaskDelete(NULL);
-    }, "audio_communication", 4096, this, 3, NULL);
+
+    xTaskCreate(
+        [](void* arg) {
+            auto this_ = (AfeAudioProcessor*)arg;
+            this_->AudioProcessorTask();
+            vTaskDelete(NULL);
+        },
+        "audio_communication", 4096, this, 3, NULL);
 }
 
 AfeAudioProcessor::~AfeAudioProcessor() {
@@ -95,9 +96,7 @@ void AfeAudioProcessor::Feed(std::vector<int16_t>&& data) {
     afe_iface_->feed(afe_data_, data.data());
 }
 
-void AfeAudioProcessor::Start() {
-    xEventGroupSetBits(event_group_, PROCESSOR_RUNNING);
-}
+void AfeAudioProcessor::Start() { xEventGroupSetBits(event_group_, PROCESSOR_RUNNING); }
 
 void AfeAudioProcessor::Stop() {
     xEventGroupClearBits(event_group_, PROCESSOR_RUNNING);
@@ -106,9 +105,7 @@ void AfeAudioProcessor::Stop() {
     }
 }
 
-bool AfeAudioProcessor::IsRunning() {
-    return xEventGroupGetBits(event_group_) & PROCESSOR_RUNNING;
-}
+bool AfeAudioProcessor::IsRunning() { return xEventGroupGetBits(event_group_) & PROCESSOR_RUNNING; }
 
 void AfeAudioProcessor::OnOutput(std::function<void(std::vector<int16_t>&& data)> callback) {
     output_callback_ = callback;
@@ -121,8 +118,8 @@ void AfeAudioProcessor::OnVadStateChange(std::function<void(bool speaking)> call
 void AfeAudioProcessor::AudioProcessorTask() {
     auto fetch_size = afe_iface_->get_fetch_chunksize(afe_data_);
     auto feed_size = afe_iface_->get_feed_chunksize(afe_data_);
-    ESP_LOGI(TAG, "Audio communication task started, feed size: %d fetch size: %d",
-        feed_size, fetch_size);
+    ESP_LOGI(TAG, "Audio communication task started, feed size: %d fetch size: %d", feed_size,
+             fetch_size);
 
     while (true) {
         xEventGroupWaitBits(event_group_, PROCESSOR_RUNNING, pdFALSE, pdTRUE, portMAX_DELAY);
@@ -151,10 +148,10 @@ void AfeAudioProcessor::AudioProcessorTask() {
 
         if (output_callback_) {
             size_t samples = res->data_size / sizeof(int16_t);
-            
+
             // Add data to buffer
             output_buffer_.insert(output_buffer_.end(), res->data, res->data + samples);
-            
+
             // Output complete frames when buffer has enough data
             while (output_buffer_.size() >= frame_samples_) {
                 if (output_buffer_.size() == frame_samples_) {
@@ -164,8 +161,10 @@ void AfeAudioProcessor::AudioProcessorTask() {
                     output_buffer_.reserve(frame_samples_);
                 } else {
                     // If buffer size exceeds frame size, copy one frame and remove it
-                    output_callback_(std::vector<int16_t>(output_buffer_.begin(), output_buffer_.begin() + frame_samples_));
-                    output_buffer_.erase(output_buffer_.begin(), output_buffer_.begin() + frame_samples_);
+                    output_callback_(std::vector<int16_t>(output_buffer_.begin(),
+                                                          output_buffer_.begin() + frame_samples_));
+                    output_buffer_.erase(output_buffer_.begin(),
+                                         output_buffer_.begin() + frame_samples_);
                 }
             }
         }

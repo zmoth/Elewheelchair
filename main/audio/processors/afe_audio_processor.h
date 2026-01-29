@@ -3,15 +3,15 @@
 
 #include <esp_afe_sr_models.h>
 #include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 #include <freertos/event_groups.h>
+#include <freertos/task.h>
 
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
 
-#include "audio_processor.h"
 #include "audio_codec.h"
+#include "audio_processor.h"
 
 class AfeAudioProcessor : public AudioProcessor {
 public:
@@ -42,4 +42,4 @@ private:
     void AudioProcessorTask();
 };
 
-#endif 
+#endif

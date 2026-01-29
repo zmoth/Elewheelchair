@@ -1,12 +1,12 @@
 #ifndef _SINGLE_LED_H_
 #define _SINGLE_LED_H_
 
-#include "led.h"
 #include <driver/gpio.h>
-#include <led_strip.h>
 #include <esp_timer.h>
+#include <led_strip.h>
 #include <atomic>
 #include <mutex>
+#include "led.h"
 
 class SingleLed : public Led {
 public:
@@ -35,4 +35,4 @@ private:
     void SetColor(uint8_t r, uint8_t g, uint8_t b);
 };
 
-#endif // _SINGLE_LED_H_
+#endif  // _SINGLE_LED_H_

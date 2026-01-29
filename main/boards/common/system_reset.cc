@@ -1,17 +1,16 @@
 #include "system_reset.h"
 
-#include <esp_log.h>
-#include <nvs_flash.h>
 #include <driver/gpio.h>
+#include <esp_log.h>
 #include <esp_partition.h>
 #include <esp_system.h>
 #include <freertos/FreeRTOS.h>
-
+#include <nvs_flash.h>
 
 #define TAG "SystemReset"
 
-
-SystemReset::SystemReset(gpio_num_t reset_nvs_pin, gpio_num_t reset_factory_pin) : reset_nvs_pin_(reset_nvs_pin), reset_factory_pin_(reset_factory_pin) {
+SystemReset::SystemReset(gpio_num_t reset_nvs_pin, gpio_num_t reset_factory_pin)
+    : reset_nvs_pin_(reset_nvs_pin), reset_factory_pin_(reset_factory_pin) {
     // Configure GPIO1, GPIO2 as INPUT, reset NVS flash if the button is pressed
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
@@ -21,7 +20,6 @@ SystemReset::SystemReset(gpio_num_t reset_nvs_pin, gpio_num_t reset_factory_pin)
     io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     gpio_config(&io_conf);
 }
-
 
 void SystemReset::CheckButtons() {
     if (gpio_get_level(reset_factory_pin_) == 0) {
@@ -51,7 +49,8 @@ void SystemReset::ResetNvsFlash() {
 void SystemReset::ResetToFactory() {
     ESP_LOGI(TAG, "Resetting to factory");
     // Erase otadata partition
-    const esp_partition_t* partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_OTA, NULL);
+    const esp_partition_t* partition =
+        esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_OTA, NULL);
     if (partition == NULL) {
         ESP_LOGE(TAG, "Failed to find otadata partition");
         return;

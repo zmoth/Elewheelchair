@@ -2,8 +2,8 @@
 
 #include <functional>
 
-#include <esp_timer.h>
 #include <esp_pm.h>
+#include <esp_timer.h>
 
 class SleepTimer {
 public:

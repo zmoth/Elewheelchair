@@ -1,12 +1,12 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
-#include <string>
 #include <functional>
 #include <memory>
+#include <string>
 
-#include <cJSON.h>
 #include <esp_partition.h>
+#include <cJSON.h>
 #include <model_path.h>
 #include <map>
 #include <string>
@@ -28,7 +28,8 @@ public:
     }
     ~Assets();
 
-    bool Download(std::string url, std::function<void(int progress, size_t speed)> progress_callback);
+    bool Download(std::string url,
+                  std::function<void(int progress, size_t speed)> progress_callback);
     bool Apply();
     bool GetAssetData(const std::string& name, void*& ptr, size_t& size);
 
@@ -44,22 +45,25 @@ private:
     void UnApplyPartition();
     static bool FindPartition(Assets* assets);
     static bool LoadSrmodelsFromIndex(Assets* assets, cJSON* root = nullptr);
-  
+
     class AssetStrategy {
     public:
         virtual ~AssetStrategy() = default;
         virtual bool Apply(Assets* assets) = 0;
         virtual bool InitializePartition(Assets* assets) = 0;
         virtual void UnApplyPartition(Assets* assets) = 0;
-        virtual bool GetAssetData(Assets* assets, const std::string& name, void*& ptr, size_t& size) = 0;
+        virtual bool GetAssetData(Assets* assets, const std::string& name, void*& ptr,
+                                  size_t& size) = 0;
     };
-    
+
     class LvglStrategy : public AssetStrategy {
     public:
         bool Apply(Assets* assets) override;
         bool InitializePartition(Assets* assets) override;
         void UnApplyPartition(Assets* assets) override;
-        bool GetAssetData(Assets* assets, const std::string& name, void*& ptr, size_t& size) override;
+        bool GetAssetData(Assets* assets, const std::string& name, void*& ptr,
+                          size_t& size) override;
+
     private:
         static uint32_t CalculateChecksum(const char* data, uint32_t length);
         std::map<std::string, Asset> assets_;
@@ -67,15 +71,16 @@ private:
         const char* mmap_root_ = nullptr;
         bool checksum_valid_ = false;
     };
-    
+
     class EmoteStrategy : public AssetStrategy {
     public:
         bool Apply(Assets* assets) override;
         bool InitializePartition(Assets* assets) override;
         void UnApplyPartition(Assets* assets) override;
-        bool GetAssetData(Assets* assets, const std::string& name, void*& ptr, size_t& size) override;
+        bool GetAssetData(Assets* assets, const std::string& name, void*& ptr,
+                          size_t& size) override;
     };
-    
+
     // Strategy instance
     std::unique_ptr<AssetStrategy> strategy_;
 

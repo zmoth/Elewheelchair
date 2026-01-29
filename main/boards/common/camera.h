@@ -12,4 +12,4 @@ public:
     virtual std::string Explain(const std::string& question) = 0;
 };
 
-#endif // CAMERA_H
+#endif  // CAMERA_H

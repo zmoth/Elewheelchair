@@ -3,7 +3,8 @@
 
 #define TAG "NoAudioProcessor"
 
-void NoAudioProcessor::Initialize(AudioCodec* codec, int frame_duration_ms, srmodel_list_t* models_list) {
+void NoAudioProcessor::Initialize(AudioCodec* codec, int frame_duration_ms,
+                                  srmodel_list_t* models_list) {
     codec_ = codec;
     frame_samples_ = frame_duration_ms * 16000 / 1000;
 }
@@ -25,17 +26,11 @@ void NoAudioProcessor::Feed(std::vector<int16_t>&& data) {
     }
 }
 
-void NoAudioProcessor::Start() {
-    is_running_ = true;
-}
+void NoAudioProcessor::Start() { is_running_ = true; }
 
-void NoAudioProcessor::Stop() {
-    is_running_ = false;
-}
+void NoAudioProcessor::Stop() { is_running_ = false; }
 
-bool NoAudioProcessor::IsRunning() {
-    return is_running_;
-}
+bool NoAudioProcessor::IsRunning() { return is_running_; }
 
 void NoAudioProcessor::OnOutput(std::function<void(std::vector<int16_t>&& data)> callback) {
     output_callback_ = callback;

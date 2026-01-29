@@ -1,7 +1,6 @@
 #include "lvgl_theme.h"
 
-LvglTheme::LvglTheme(const std::string& name) : Theme(name) {
-}
+LvglTheme::LvglTheme(const std::string& name) : Theme(name) {}
 
 lv_color_t LvglTheme::ParseColor(const std::string& color) {
     if (color.find("#") == 0) {
@@ -14,8 +13,7 @@ lv_color_t LvglTheme::ParseColor(const std::string& color) {
     return lv_color_black();
 }
 
-LvglThemeManager::LvglThemeManager() {
-}
+LvglThemeManager::LvglThemeManager() {}
 
 LvglTheme* LvglThemeManager::GetTheme(const std::string& theme_name) {
     auto it = themes_.find(theme_name);

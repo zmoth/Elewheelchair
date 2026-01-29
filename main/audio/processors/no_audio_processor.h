@@ -1,11 +1,11 @@
 #ifndef DUMMY_AUDIO_PROCESSOR_H
 #define DUMMY_AUDIO_PROCESSOR_H
 
-#include <vector>
 #include <functional>
+#include <vector>
 
-#include "audio_processor.h"
 #include "audio_codec.h"
+#include "audio_processor.h"
 
 class NoAudioProcessor : public AudioProcessor {
 public:
@@ -30,4 +30,4 @@ private:
     bool is_running_ = false;
 };
 
-#endif 
+#endif

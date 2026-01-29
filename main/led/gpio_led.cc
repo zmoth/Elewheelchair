@@ -1,7 +1,7 @@
 #include "gpio_led.h"
+#include <esp_log.h>
 #include "application.h"
 #include "device_state.h"
-#include <esp_log.h>
 
 #define TAG "GpioLed"
 
@@ -17,23 +17,21 @@
 #define BLINK_INFINITE -1
 
 // GPIO_LED
-#define LEDC_LS_TIMER          LEDC_TIMER_1
-#define LEDC_LS_MODE           LEDC_LOW_SPEED_MODE
-#define LEDC_LS_CH0_CHANNEL    LEDC_CHANNEL_0
+#define LEDC_LS_TIMER LEDC_TIMER_1
+#define LEDC_LS_MODE LEDC_LOW_SPEED_MODE
+#define LEDC_LS_CH0_CHANNEL LEDC_CHANNEL_0
 
-#define LEDC_DUTY              (8191)
-#define LEDC_FADE_TIME    (1000)
+#define LEDC_DUTY (8191)
+#define LEDC_FADE_TIME (1000)
 // GPIO_LED
 
-GpioLed::GpioLed(gpio_num_t gpio)
-        : GpioLed(gpio, 0, LEDC_LS_TIMER, LEDC_LS_CH0_CHANNEL) {
-}
+GpioLed::GpioLed(gpio_num_t gpio) : GpioLed(gpio, 0, LEDC_LS_TIMER, LEDC_LS_CH0_CHANNEL) {}
 
 GpioLed::GpioLed(gpio_num_t gpio, int output_invert)
-        : GpioLed(gpio, output_invert, LEDC_LS_TIMER, LEDC_LS_CH0_CHANNEL) {
-}
+    : GpioLed(gpio, output_invert, LEDC_LS_TIMER, LEDC_LS_CH0_CHANNEL) {}
 
-GpioLed::GpioLed(gpio_num_t gpio, int output_invert, ledc_timer_t timer_num, ledc_channel_t channel) {
+GpioLed::GpioLed(gpio_num_t gpio, int output_invert, ledc_timer_t timer_num,
+                 ledc_channel_t channel) {
     // If the gpio is not connected, you should use NoLed class
     assert(gpio != GPIO_NUM_NC);
 
@@ -43,38 +41,33 @@ GpioLed::GpioLed(gpio_num_t gpio, int output_invert, ledc_timer_t timer_num, led
      */
     ledc_timer_config_t ledc_timer = {};
     ledc_timer.duty_resolution = LEDC_TIMER_13_BIT;  // resolution of PWM duty
-    ledc_timer.freq_hz = 4000;                      // frequency of PWM signal
-    ledc_timer.speed_mode = LEDC_LS_MODE;           // timer mode
-    ledc_timer.timer_num = timer_num;               // timer index
+    ledc_timer.freq_hz = 4000;                       // frequency of PWM signal
+    ledc_timer.speed_mode = LEDC_LS_MODE;            // timer mode
+    ledc_timer.timer_num = timer_num;                // timer index
     ledc_timer.clk_cfg = LEDC_AUTO_CLK;              // Auto select the source clock
 
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
-    ledc_channel_.channel    = channel,
-    ledc_channel_.duty       = 0,
-    ledc_channel_.gpio_num   = gpio,
-    ledc_channel_.speed_mode = LEDC_LS_MODE,
-    ledc_channel_.hpoint     = 0,
-    ledc_channel_.timer_sel  = timer_num,
-    ledc_channel_.flags.output_invert = output_invert & 0x01,
+    ledc_channel_.channel = channel, ledc_channel_.duty = 0, ledc_channel_.gpio_num = gpio,
+    ledc_channel_.speed_mode = LEDC_LS_MODE, ledc_channel_.hpoint = 0,
+    ledc_channel_.timer_sel = timer_num, ledc_channel_.flags.output_invert = output_invert & 0x01,
 
     // Set LED Controller with previously prepared configuration
-    ledc_channel_config(&ledc_channel_);
+        ledc_channel_config(&ledc_channel_);
 
     // Initialize fade service.
     ledc_fade_func_install(0);
 
     // When the callback registered by ledc_cb_degister is called, run led ->OnFadeEnd()
-    ledc_cbs_t ledc_callbacks = {
-        .fade_cb = FadeCallback
-    };
+    ledc_cbs_t ledc_callbacks = {.fade_cb = FadeCallback};
     ledc_cb_register(ledc_channel_.speed_mode, ledc_channel_.channel, &ledc_callbacks, this);
 
     esp_timer_create_args_t blink_timer_args = {
-        .callback = [](void *arg) {
-            auto led = static_cast<GpioLed*>(arg);
-            led->OnBlinkTimer();
-        },
+        .callback =
+            [](void* arg) {
+                auto led = static_cast<GpioLed*>(arg);
+                led->OnBlinkTimer();
+            },
         .arg = this,
         .dispatch_method = ESP_TIMER_TASK,
         .name = "Blink Timer",
@@ -82,8 +75,7 @@ GpioLed::GpioLed(gpio_num_t gpio, int output_invert, ledc_timer_t timer_num, led
     };
     ESP_ERROR_CHECK(esp_timer_create(&blink_timer_args, &blink_timer_));
 
-    xTaskCreate(EventTask, "LedEvent", 2048, this, 
-            tskIDLE_PRIORITY + 2, &event_task_handle_);
+    xTaskCreate(EventTask, "LedEvent", 2048, this, tskIDLE_PRIORITY + 2, &event_task_handle_);
 
     ledc_initialized_ = true;
 }
@@ -95,7 +87,6 @@ GpioLed::~GpioLed() {
         ledc_fade_func_uninstall();
     }
 }
-
 
 void GpioLed::SetBrightness(uint8_t brightness) {
     if (brightness == 100) {
@@ -129,17 +120,11 @@ void GpioLed::TurnOff() {
     ledc_update_duty(ledc_channel_.speed_mode, ledc_channel_.channel);
 }
 
-void GpioLed::BlinkOnce() {
-    Blink(1, 100);
-}
+void GpioLed::BlinkOnce() { Blink(1, 100); }
 
-void GpioLed::Blink(int times, int interval_ms) {
-    StartBlinkTask(times, interval_ms);
-}
+void GpioLed::Blink(int times, int interval_ms) { StartBlinkTask(times, interval_ms); }
 
-void GpioLed::StartContinuousBlink(int interval_ms) {
-    StartBlinkTask(BLINK_INFINITE, interval_ms);
-}
+void GpioLed::StartContinuousBlink(int interval_ms) { StartBlinkTask(BLINK_INFINITE, interval_ms); }
 
 void GpioLed::StartBlinkTask(int times, int interval_ms) {
     if (!ledc_initialized_) {
@@ -179,22 +164,20 @@ void GpioLed::StartFadeTask() {
     esp_timer_stop(blink_timer_);
     ledc_fade_stop(ledc_channel_.speed_mode, ledc_channel_.channel);
     fade_up_ = true;
-    ledc_set_fade_with_time(ledc_channel_.speed_mode,
-                            ledc_channel_.channel, LEDC_DUTY, LEDC_FADE_TIME);
-    ledc_fade_start(ledc_channel_.speed_mode,
-                    ledc_channel_.channel, LEDC_FADE_NO_WAIT);
+    ledc_set_fade_with_time(ledc_channel_.speed_mode, ledc_channel_.channel, LEDC_DUTY,
+                            LEDC_FADE_TIME);
+    ledc_fade_start(ledc_channel_.speed_mode, ledc_channel_.channel, LEDC_FADE_NO_WAIT);
 }
 
 void GpioLed::OnFadeEnd() {
     std::lock_guard<std::mutex> lock(mutex_);
     fade_up_ = !fade_up_;
-    ledc_set_fade_with_time(ledc_channel_.speed_mode,
-                            ledc_channel_.channel, fade_up_ ? LEDC_DUTY : 0, LEDC_FADE_TIME);
-    ledc_fade_start(ledc_channel_.speed_mode,
-                    ledc_channel_.channel, LEDC_FADE_NO_WAIT);
+    ledc_set_fade_with_time(ledc_channel_.speed_mode, ledc_channel_.channel,
+                            fade_up_ ? LEDC_DUTY : 0, LEDC_FADE_TIME);
+    ledc_fade_start(ledc_channel_.speed_mode, ledc_channel_.channel, LEDC_FADE_NO_WAIT);
 }
 
-bool IRAM_ATTR GpioLed::FadeCallback(const ledc_cb_param_t *param, void *user_arg) {
+bool IRAM_ATTR GpioLed::FadeCallback(const ledc_cb_param_t* param, void* user_arg) {
     if (param->event == LEDC_FADE_END_EVT) {
         auto led = static_cast<GpioLed*>(user_arg);
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;

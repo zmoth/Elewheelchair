@@ -8,10 +8,9 @@ public:
     virtual void OnStateChanged() = 0;
 };
 
-
 class NoLed : public Led {
 public:
     virtual void OnStateChanged() override {}
 };
 
-#endif // _LED_H_
+#endif  // _LED_H_

@@ -2,16 +2,17 @@
 #define BUTTON_H_
 
 #include <driver/gpio.h>
-#include <iot_button.h>
-#include <button_types.h>
 #include <button_adc.h>
 #include <button_gpio.h>
+#include <button_types.h>
+#include <iot_button.h>
 #include <functional>
 
 class Button {
 public:
     Button(button_handle_t button_handle);
-    Button(gpio_num_t gpio_num, bool active_high = false, uint16_t long_press_time = 0, uint16_t short_press_time = 0, bool enable_power_save = false);
+    Button(gpio_num_t gpio_num, bool active_high = false, uint16_t long_press_time = 0,
+           uint16_t short_press_time = 0, bool enable_power_save = false);
     ~Button();
 
     void OnPressDown(std::function<void()> callback);
@@ -42,8 +43,7 @@ public:
 
 class PowerSaveButton : public Button {
 public:
-    PowerSaveButton(gpio_num_t gpio_num) : Button(gpio_num, false, 0, 0, true) {
-    }
+    PowerSaveButton(gpio_num_t gpio_num) : Button(gpio_num, false, 0, 0, true) {}
 };
 
-#endif // BUTTON_H_
+#endif  // BUTTON_H_

@@ -2,7 +2,6 @@
 
 #include <lvgl.h>
 
-
 // Wrap around lv_img_dsc_t
 class LvglImage {
 public:
@@ -10,7 +9,6 @@ public:
     virtual bool IsGif() const { return false; }
     virtual ~LvglImage() = default;
 };
-
 
 class LvglRawImage : public LvglImage {
 public:
@@ -44,7 +42,8 @@ private:
 class LvglAllocatedImage : public LvglImage {
 public:
     LvglAllocatedImage(void* data, size_t size);
-    LvglAllocatedImage(void* data, size_t size, int width, int height, int stride, int color_format);
+    LvglAllocatedImage(void* data, size_t size, int width, int height, int stride,
+                       int color_format);
     virtual ~LvglAllocatedImage();
     virtual const lv_img_dsc_t* image_dsc() const override { return &image_dsc_; }
 

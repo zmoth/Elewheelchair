@@ -1,12 +1,11 @@
 #ifndef _WEBSOCKET_PROTOCOL_H_
 #define _WEBSOCKET_PROTOCOL_H_
 
-
 #include "protocol.h"
 
-#include <web_socket.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/event_groups.h>
+#include <web_socket.h>
 
 #define WEBSOCKET_PROTOCOL_SERVER_HELLO_EVENT (1 << 0)
 

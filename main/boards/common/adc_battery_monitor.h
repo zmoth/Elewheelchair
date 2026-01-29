@@ -1,14 +1,15 @@
 #ifndef ADC_BATTERY_MONITOR_H
 #define ADC_BATTERY_MONITOR_H
 
-#include <functional>
 #include <driver/gpio.h>
-#include <adc_battery_estimation.h>
 #include <esp_timer.h>
+#include <adc_battery_estimation.h>
+#include <functional>
 
 class AdcBatteryMonitor {
 public:
-    AdcBatteryMonitor(adc_unit_t adc_unit, adc_channel_t adc_channel, float upper_resistor, float lower_resistor, gpio_num_t charging_pin = GPIO_NUM_NC);
+    AdcBatteryMonitor(adc_unit_t adc_unit, adc_channel_t adc_channel, float upper_resistor,
+                      float lower_resistor, gpio_num_t charging_pin = GPIO_NUM_NC);
     ~AdcBatteryMonitor();
 
     bool IsCharging();
@@ -27,4 +28,4 @@ private:
     void CheckBatteryStatus();
 };
 
-#endif // ADC_BATTERY_MONITOR_H
+#endif  // ADC_BATTERY_MONITOR_H

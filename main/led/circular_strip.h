@@ -1,13 +1,13 @@
 #ifndef _CIRCULAR_STRIP_H_
 #define _CIRCULAR_STRIP_H_
 
-#include "led.h"
 #include <driver/gpio.h>
-#include <led_strip.h>
 #include <esp_timer.h>
+#include <led_strip.h>
 #include <atomic>
 #include <mutex>
 #include <vector>
+#include "led.h"
 
 #define DEFAULT_BRIGHTNESS 32
 #define LOW_BRIGHTNESS 4
@@ -48,4 +48,4 @@ private:
     void FadeOut(int interval_ms);
 };
 
-#endif // _CIRCULAR_STRIP_H_
+#endif  // _CIRCULAR_STRIP_H_

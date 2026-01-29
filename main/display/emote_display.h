@@ -1,17 +1,18 @@
 #pragma once
 
-#include "display.h"
-#include <memory>
-#include <string>
 #include <esp_lcd_panel_io.h>
 #include <esp_lcd_panel_ops.h>
+#include <memory>
+#include <string>
+#include "display.h"
 #include "expression_emote.h"
 
 namespace emote {
 
 class EmoteDisplay : public Display {
 public:
-    EmoteDisplay(esp_lcd_panel_handle_t panel, esp_lcd_panel_io_handle_t panel_io, int width, int height);
+    EmoteDisplay(esp_lcd_panel_handle_t panel, esp_lcd_panel_io_handle_t panel_io, int width,
+                 int height);
     virtual ~EmoteDisplay();
 
     virtual void SetEmotion(const char* emotion) override;
@@ -36,7 +37,6 @@ private:
     virtual void Unlock() override;
 
     emote_handle_t emote_handle_ = nullptr;
-
 };
 
-} // namespace emote
+}  // namespace emote

@@ -7,8 +7,8 @@
 #include <esp_log.h>
 
 #include "application.h"
-#include "codecs/no_audio_codec.h"
 #include "button.h"
+#include "codecs/no_audio_codec.h"
 #include "config.h"
 #include "display/lcd_display.h"
 #include "driver/spi_master.h"

@@ -4,24 +4,26 @@
 #include "sdkconfig.h"
 
 #if CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32S3
-#include "board.h"
-#include "iot_eth.h"
-#include "iot_usbh_rndis.h"
-#include "iot_eth_netif_glue.h"
-#include <esp_netif.h>
 #include <esp_event.h>
+#include <esp_netif.h>
+#include <esp_timer.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/event_groups.h>
-#include <esp_timer.h>
+#include "board.h"
+#include "iot_eth.h"
+#include "iot_eth_netif_glue.h"
+#include "iot_usbh_rndis.h"
 
 class RndisBoard : public Board {
 private:
     EventGroupHandle_t s_event_group = nullptr;
-    iot_eth_driver_t *rndis_eth_driver = nullptr;
-    esp_netif_t *s_rndis_netif = nullptr;
+    iot_eth_driver_t* rndis_eth_driver = nullptr;
+    esp_netif_t* s_rndis_netif = nullptr;
 
-    void install_rndis(uint16_t idVendor, uint16_t idProduct, const char *netif_name);
-    static void iot_event_handle(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+    void install_rndis(uint16_t idVendor, uint16_t idProduct, const char* netif_name);
+    static void iot_event_handle(void* arg, esp_event_base_t event_base, int32_t event_id,
+                                 void* event_data);
+
 protected:
     NetworkEventCallback network_event_callback_ = nullptr;
 
@@ -52,23 +54,23 @@ protected:
 public:
     RndisBoard();
     virtual ~RndisBoard();
-    
+
     virtual std::string GetBoardType() override;
-    
+
     /**
      * Start network connection asynchronously
-     * This function returns immediately. Network events are notified through the callback set by SetNetworkEventCallback().
+     * This function returns immediately. Network events are notified through the callback set by
+     * SetNetworkEventCallback().
      */
     virtual void StartNetwork() override;
-    
+
     virtual NetworkInterface* GetNetwork() override;
     virtual void SetNetworkEventCallback(NetworkEventCallback callback) override;
     virtual const char* GetNetworkStateIcon() override;
     virtual void SetPowerSaveLevel(PowerSaveLevel level) override;
     virtual AudioCodec* GetAudioCodec() override { return nullptr; }
     virtual std::string GetDeviceStatusJson() override;
-    
 };
-#endif // CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32S3
+#endif  // CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32S3
 
-#endif // RNDIS_BOARD_H
+#endif  // RNDIS_BOARD_H

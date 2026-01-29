@@ -1,18 +1,18 @@
-#include "board.h"
-#include "nt26_board.h"
-#include "codecs/no_audio_codec.h"
-#include "display/oled_display.h"
 #include "application.h"
+#include "assets/lang_config.h"
+#include "board.h"
 #include "button.h"
+#include "codecs/no_audio_codec.h"
 #include "config.h"
+#include "display/oled_display.h"
 #include "lamp_controller.h"
 #include "led/single_led.h"
-#include "assets/lang_config.h"
+#include "nt26_board.h"
 
-#include <esp_log.h>
 #include <driver/i2c_master.h>
 #include <esp_lcd_panel_ops.h>
 #include <esp_lcd_panel_vendor.h>
+#include <esp_log.h>
 
 #define TAG "CompactNt26Board"
 
@@ -36,9 +36,10 @@ private:
             .glitch_ignore_cnt = 7,
             .intr_priority = 0,
             .trans_queue_depth = 0,
-            .flags = {
-                .enable_internal_pullup = 1,
-            },
+            .flags =
+                {
+                    .enable_internal_pullup = 1,
+                },
         };
         ESP_ERROR_CHECK(i2c_new_master_bus(&bus_config, &display_i2c_bus_));
     }
@@ -53,10 +54,11 @@ private:
             .dc_bit_offset = 6,
             .lcd_cmd_bits = 8,
             .lcd_param_bits = 8,
-            .flags = {
-                .dc_low_on_data = 0,
-                .disable_control_phase = 0,
-            },
+            .flags =
+                {
+                    .dc_low_on_data = 0,
+                    .disable_control_phase = 0,
+                },
             .scl_speed_hz = 400 * 1000,
         };
 
@@ -87,20 +89,15 @@ private:
         ESP_LOGI(TAG, "Turning display on");
         ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_, true));
 
-        display_ = new OledDisplay(panel_io_, panel_, DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
+        display_ = new OledDisplay(panel_io_, panel_, DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                                   DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
     }
 
     void InitializeButtons() {
-        boot_button_.OnClick([]() {
-            Application::GetInstance().ToggleChatState();
-        });
+        boot_button_.OnClick([]() { Application::GetInstance().ToggleChatState(); });
 
-        touch_button_.OnPressDown([]() {
-            Application::GetInstance().StartListening();
-        });
-        touch_button_.OnPressUp([]() {
-            Application::GetInstance().StopListening();
-        });
+        touch_button_.OnPressDown([]() { Application::GetInstance().StartListening(); });
+        touch_button_.OnPressUp([]() { Application::GetInstance().StopListening(); });
 
         volume_up_button_.OnClick([this]() {
             auto codec = GetAudioCodec();
@@ -134,18 +131,15 @@ private:
     }
 
     // 物联网初始化，添加对 AI 可见设备
-    void InitializeTools() {
-        static LampController lamp(LAMP_GPIO);
-    }
+    void InitializeTools() { static LampController lamp(LAMP_GPIO); }
 
 public:
-    CompactNt26Board() :
-        Nt26Board(NT26_TX_PIN, NT26_RX_PIN, NT26_DTR_PIN, NT26_RI_PIN),
-        boot_button_(BOOT_BUTTON_GPIO),
-        touch_button_(TOUCH_BUTTON_GPIO),
-        volume_up_button_(VOLUME_UP_BUTTON_GPIO),
-        volume_down_button_(VOLUME_DOWN_BUTTON_GPIO) {
-
+    CompactNt26Board()
+        : Nt26Board(NT26_TX_PIN, NT26_RX_PIN, NT26_DTR_PIN, NT26_RI_PIN),
+          boot_button_(BOOT_BUTTON_GPIO),
+          touch_button_(TOUCH_BUTTON_GPIO),
+          volume_up_button_(VOLUME_UP_BUTTON_GPIO),
+          volume_down_button_(VOLUME_DOWN_BUTTON_GPIO) {
         InitializeDisplayI2c();
         InitializeSsd1306Display();
         InitializeButtons();
@@ -165,17 +159,18 @@ public:
     virtual AudioCodec* GetAudioCodec() override {
 #ifdef AUDIO_I2S_METHOD_SIMPLEX
         static NoAudioCodecSimplex audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
-            AUDIO_I2S_SPK_GPIO_BCLK, AUDIO_I2S_SPK_GPIO_LRCK, AUDIO_I2S_SPK_GPIO_DOUT, AUDIO_I2S_MIC_GPIO_SCK, AUDIO_I2S_MIC_GPIO_WS, AUDIO_I2S_MIC_GPIO_DIN);
+                                               AUDIO_I2S_SPK_GPIO_BCLK, AUDIO_I2S_SPK_GPIO_LRCK,
+                                               AUDIO_I2S_SPK_GPIO_DOUT, AUDIO_I2S_MIC_GPIO_SCK,
+                                               AUDIO_I2S_MIC_GPIO_WS, AUDIO_I2S_MIC_GPIO_DIN);
 #else
         static NoAudioCodecDuplex audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
-            AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN);
+                                              AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS,
+                                              AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN);
 #endif
         return &audio_codec;
     }
 
-    virtual Display* GetDisplay() override {
-        return display_;
-    }
+    virtual Display* GetDisplay() override { return display_; }
 };
 
 DECLARE_BOARD(CompactNt26Board);

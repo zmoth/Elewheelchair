@@ -2,19 +2,19 @@
 #define AFE_WAKE_WORD_H
 
 #include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 #include <freertos/event_groups.h>
+#include <freertos/task.h>
 
 #include <esp_afe_sr_models.h>
 #include <esp_nsn_models.h>
 #include <model_path.h>
 
+#include <condition_variable>
 #include <deque>
-#include <string>
-#include <vector>
 #include <functional>
 #include <mutex>
-#include <condition_variable>
+#include <string>
+#include <vector>
 
 #include "audio_codec.h"
 #include "wake_word.h"
@@ -35,7 +35,7 @@ public:
     const std::string& GetLastDetectedWakeWord() const { return last_detected_wake_word_; }
 
 private:
-    srmodel_list_t *models_ = nullptr;
+    srmodel_list_t* models_ = nullptr;
     const esp_afe_sr_iface_t* afe_iface_ = nullptr;
     esp_afe_sr_data_t* afe_data_ = nullptr;
     char* wakenet_model_ = NULL;

@@ -6,9 +6,8 @@
 #include <lvgl.h>
 
 #include <map>
-#include <string>
 #include <memory>
-
+#include <string>
 
 // Define interface for emoji collection
 class EmojiCollection {

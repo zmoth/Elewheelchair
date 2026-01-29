@@ -1,8 +1,8 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <string>
 #include <nvs_flash.h>
+#include <string>
 
 class Settings {
 public:

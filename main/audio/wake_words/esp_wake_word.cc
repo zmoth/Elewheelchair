@@ -1,11 +1,9 @@
 #include "esp_wake_word.h"
 #include <esp_log.h>
 
-
 #define TAG "EspWakeWord"
 
-EspWakeWord::EspWakeWord() {
-}
+EspWakeWord::EspWakeWord() {}
 
 EspWakeWord::~EspWakeWord() {
     if (wakenet_data_ != nullptr) {
@@ -27,13 +25,13 @@ bool EspWakeWord::Initialize(AudioCodec* codec, srmodel_list_t* models_list) {
         ESP_LOGE(TAG, "Failed to initialize wakenet model");
         return false;
     }
-    if(wakenet_model_->num > 1) {
+    if (wakenet_model_->num > 1) {
         ESP_LOGW(TAG, "More than one model found, using the first one");
     } else if (wakenet_model_->num == 0) {
         ESP_LOGE(TAG, "No model found");
         return false;
     }
-    char *model_name = wakenet_model_->model_name[0];
+    char* model_name = wakenet_model_->model_name[0];
     wakenet_iface_ = (esp_wn_iface_t*)esp_wn_handle_from_name(model_name);
     wakenet_data_ = wakenet_iface_->create(model_name, DET_MODE_95);
 
@@ -48,20 +46,16 @@ void EspWakeWord::OnWakeWordDetected(std::function<void(const std::string& wake_
     wake_word_detected_callback_ = callback;
 }
 
-void EspWakeWord::Start() {
-    running_ = true;
-}
+void EspWakeWord::Start() { running_ = true; }
 
-void EspWakeWord::Stop() {
-    running_ = false;
-}
+void EspWakeWord::Stop() { running_ = false; }
 
 void EspWakeWord::Feed(const std::vector<int16_t>& data) {
     if (wakenet_data_ == nullptr || !running_) {
         return;
     }
 
-    int res = wakenet_iface_->detect(wakenet_data_, (int16_t *)data.data());
+    int res = wakenet_iface_->detect(wakenet_data_, (int16_t*)data.data());
     if (res > 0) {
         last_detected_wake_word_ = wakenet_iface_->get_word_name(wakenet_data_, res);
         running_ = false;
@@ -79,9 +73,6 @@ size_t EspWakeWord::GetFeedSize() {
     return wakenet_iface_->get_samp_chunksize(wakenet_data_);
 }
 
-void EspWakeWord::EncodeWakeWordData() {
-}
+void EspWakeWord::EncodeWakeWordData() {}
 
-bool EspWakeWord::GetWakeWordOpus(std::vector<uint8_t>& opus) {
-    return false;
-}
+bool EspWakeWord::GetWakeWordOpus(std::vector<uint8_t>& opus) { return false; }

@@ -8,12 +8,12 @@
 #include <lvgl.h>
 #endif
 
-#include <esp_timer.h>
 #include <esp_log.h>
 #include <esp_pm.h>
+#include <esp_timer.h>
 
-#include <string>
 #include <chrono>
+#include <string>
 
 class Theme {
 public:
@@ -21,6 +21,7 @@ public:
     virtual ~Theme() = default;
 
     inline std::string name() const { return name_; }
+
 private:
     std::string name_;
 };
@@ -32,7 +33,7 @@ public:
 
     virtual void SetStatus(const char* status);
     virtual void ShowNotification(const char* notification, int duration_ms = 3000);
-    virtual void ShowNotification(const std::string &notification, int duration_ms = 3000);
+    virtual void ShowNotification(const std::string& notification, int duration_ms = 3000);
     virtual void SetEmotion(const char* emotion);
     virtual void SetChatMessage(const char* role, const char* content);
     virtual void SetTheme(Theme* theme);
@@ -54,27 +55,22 @@ protected:
     virtual void Unlock() = 0;
 };
 
-
 class DisplayLockGuard {
 public:
-    DisplayLockGuard(Display *display) : display_(display) {
+    DisplayLockGuard(Display* display) : display_(display) {
         if (!display_->Lock(30000)) {
             ESP_LOGE("Display", "Failed to lock display");
         }
     }
-    ~DisplayLockGuard() {
-        display_->Unlock();
-    }
+    ~DisplayLockGuard() { display_->Unlock(); }
 
 private:
-    Display *display_;
+    Display* display_;
 };
 
 class NoDisplay : public Display {
 private:
-    virtual bool Lock(int timeout_ms = 0) override {
-        return true;
-    }
+    virtual bool Lock(int timeout_ms = 0) override { return true; }
     virtual void Unlock() override {}
 };
 

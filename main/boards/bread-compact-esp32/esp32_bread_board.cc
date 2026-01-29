@@ -1,18 +1,18 @@
-#include "dual_network_board.h"
-#include "codecs/no_audio_codec.h"
-#include "system_reset.h"
 #include "application.h"
 #include "button.h"
+#include "codecs/no_audio_codec.h"
 #include "config.h"
-#include "mcp_server.h"
+#include "display/oled_display.h"
+#include "dual_network_board.h"
 #include "lamp_controller.h"
 #include "led/single_led.h"
-#include "display/oled_display.h"
+#include "mcp_server.h"
+#include "system_reset.h"
 
-#include <esp_log.h>
 #include <driver/i2c_master.h>
 #include <esp_lcd_panel_ops.h>
 #include <esp_lcd_panel_vendor.h>
+#include <esp_log.h>
 
 #define TAG "ESP32-MarsbearSupport"
 
@@ -36,9 +36,10 @@ private:
             .glitch_ignore_cnt = 7,
             .intr_priority = 0,
             .trans_queue_depth = 0,
-            .flags = {
-                .enable_internal_pullup = 1,
-            },
+            .flags =
+                {
+                    .enable_internal_pullup = 1,
+                },
         };
         ESP_ERROR_CHECK(i2c_new_master_bus(&bus_config, &display_i2c_bus_));
     }
@@ -53,10 +54,11 @@ private:
             .dc_bit_offset = 6,
             .lcd_cmd_bits = 8,
             .lcd_param_bits = 8,
-            .flags = {
-                .dc_low_on_data = 0,
-                .disable_control_phase = 0,
-            },
+            .flags =
+                {
+                    .dc_low_on_data = 0,
+                    .disable_control_phase = 0,
+                },
             .scl_speed_hz = 400 * 1000,
         };
 
@@ -87,18 +89,18 @@ private:
         ESP_LOGI(TAG, "Turning display on");
         ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_, true));
 
-        display_ = new OledDisplay(panel_io_, panel_, DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
+        display_ = new OledDisplay(panel_io_, panel_, DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                                   DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y);
     }
 
     void InitializeButtons() {
-        
         // 配置 GPIO
         gpio_config_t io_conf = {
             .pin_bit_mask = 1ULL << BUILTIN_LED_GPIO,  // 设置需要配置的 GPIO 引脚
-            .mode = GPIO_MODE_OUTPUT,           // 设置为输出模式
-            .pull_up_en = GPIO_PULLUP_DISABLE,  // 禁用上拉
-            .pull_down_en = GPIO_PULLDOWN_DISABLE,  // 禁用下拉
-            .intr_type = GPIO_INTR_DISABLE      // 禁用中断
+            .mode = GPIO_MODE_OUTPUT,                  // 设置为输出模式
+            .pull_up_en = GPIO_PULLUP_DISABLE,         // 禁用上拉
+            .pull_down_en = GPIO_PULLDOWN_DISABLE,     // 禁用下拉
+            .intr_type = GPIO_INTR_DISABLE             // 禁用中断
         };
         gpio_config(&io_conf);  // 应用配置
 
@@ -116,16 +118,16 @@ private:
             app.ToggleChatState();
         });
 
-
         boot_button_.OnDoubleClick([this]() {
             auto& app = Application::GetInstance();
-            if (app.GetDeviceState() == kDeviceStateStarting || app.GetDeviceState() == kDeviceStateWifiConfiguring) {
+            if (app.GetDeviceState() == kDeviceStateStarting ||
+                app.GetDeviceState() == kDeviceStateWifiConfiguring) {
                 SwitchNetworkType();
             }
         });
 
         asr_button_.OnClick([this]() {
-            std::string wake_word="你好小智";
+            std::string wake_word = "你好小智";
             Application::GetInstance().WakeWordInvoke(wake_word);
         });
 
@@ -140,35 +142,35 @@ private:
     }
 
     // 物联网初始化，添加对 AI 可见设备
-    void InitializeTools() {
-        static LampController lamp(LAMP_GPIO);
-    }
+    void InitializeTools() { static LampController lamp(LAMP_GPIO); }
 
 public:
-    CompactWifiBoard() : DualNetworkBoard(ML307_TX_PIN, ML307_RX_PIN), boot_button_(BOOT_BUTTON_GPIO), touch_button_(TOUCH_BUTTON_GPIO), asr_button_(ASR_BUTTON_GPIO)
-    {
+    CompactWifiBoard()
+        : DualNetworkBoard(ML307_TX_PIN, ML307_RX_PIN),
+          boot_button_(BOOT_BUTTON_GPIO),
+          touch_button_(TOUCH_BUTTON_GPIO),
+          asr_button_(ASR_BUTTON_GPIO) {
         InitializeDisplayI2c();
         InitializeSsd1306Display();
         InitializeButtons();
         InitializeTools();
     }
 
-    virtual AudioCodec* GetAudioCodec() override 
-    {
+    virtual AudioCodec* GetAudioCodec() override {
 #ifdef AUDIO_I2S_METHOD_SIMPLEX
         static NoAudioCodecSimplex audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
-            AUDIO_I2S_SPK_GPIO_BCLK, AUDIO_I2S_SPK_GPIO_LRCK, AUDIO_I2S_SPK_GPIO_DOUT, AUDIO_I2S_MIC_GPIO_SCK, AUDIO_I2S_MIC_GPIO_WS, AUDIO_I2S_MIC_GPIO_DIN);
+                                               AUDIO_I2S_SPK_GPIO_BCLK, AUDIO_I2S_SPK_GPIO_LRCK,
+                                               AUDIO_I2S_SPK_GPIO_DOUT, AUDIO_I2S_MIC_GPIO_SCK,
+                                               AUDIO_I2S_MIC_GPIO_WS, AUDIO_I2S_MIC_GPIO_DIN);
 #else
         static NoAudioCodecDuplex audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
-            AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN);
+                                              AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS,
+                                              AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN);
 #endif
         return &audio_codec;
     }
 
-    virtual Display* GetDisplay() override {
-        return display_;
-    }
-
+    virtual Display* GetDisplay() override { return display_; }
 };
 
 DECLARE_BOARD(CompactWifiBoard);

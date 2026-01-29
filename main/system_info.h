@@ -19,4 +19,4 @@ public:
     static void PrintHeapStats();
 };
 
-#endif // _SYSTEM_INFO_H_
+#endif  // _SYSTEM_INFO_H_

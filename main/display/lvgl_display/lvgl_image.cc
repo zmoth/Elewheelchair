@@ -1,13 +1,12 @@
 #include "lvgl_image.h"
 #include <cbin_font.h>
 
-#include <esp_log.h>
-#include <stdexcept>
-#include <cstring>
 #include <esp_heap_caps.h>
+#include <esp_log.h>
+#include <cstring>
+#include <stdexcept>
 
 #define TAG "LvglImage"
-
 
 LvglRawImage::LvglRawImage(void* data, size_t size) {
     bzero(&image_dsc_, sizeof(image_dsc_));
@@ -45,7 +44,8 @@ LvglAllocatedImage::LvglAllocatedImage(void* data, size_t size) {
     }
 }
 
-LvglAllocatedImage::LvglAllocatedImage(void* data, size_t size, int width, int height, int stride, int color_format) {
+LvglAllocatedImage::LvglAllocatedImage(void* data, size_t size, int width, int height, int stride,
+                                       int color_format) {
     bzero(&image_dsc_, sizeof(image_dsc_));
     image_dsc_.data_size = size;
     image_dsc_.data = static_cast<uint8_t*>(data);

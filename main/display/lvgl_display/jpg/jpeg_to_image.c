@@ -20,8 +20,9 @@
 
 #define TAG "jpeg_to_image"
 
-static esp_err_t decode_with_new_jpeg(const uint8_t* src, size_t src_len, uint8_t** out, size_t* out_len, size_t* width,
-                                      size_t* height, size_t* stride) {
+static esp_err_t decode_with_new_jpeg(const uint8_t* src, size_t src_len, uint8_t** out,
+                                      size_t* out_len, size_t* width, size_t* height,
+                                      size_t* stride) {
     ESP_LOGD(TAG, "Decoding JPEG with software decoder");
     esp_err_t ret = ESP_OK;
     jpeg_error_t jpeg_ret = JPEG_ERR_OK;
@@ -68,7 +69,8 @@ static esp_err_t decode_with_new_jpeg(const uint8_t* src, size_t src_len, uint8_
         goto jpeg_dec_failed;
     }
 
-    ESP_LOG_BUFFER_HEXDUMP(TAG, out_buf, MIN(out_info.width * out_info.height * 2, 256), ESP_LOG_DEBUG);
+    ESP_LOG_BUFFER_HEXDUMP(TAG, out_buf, MIN(out_info.width * out_info.height * 2, 256),
+                           ESP_LOG_DEBUG);
 
     *out = out_buf;
     out_buf = NULL;
@@ -100,8 +102,9 @@ jpeg_dec_failed:
 }
 
 #ifdef CONFIG_XIAOZHI_ENABLE_HARDWARE_JPEG_DECODER
-static esp_err_t decode_with_hardware_jpeg(const uint8_t* src, size_t src_len, uint8_t** out, size_t* out_len,
-                                           size_t* width, size_t* height, size_t* stride) {
+static esp_err_t decode_with_hardware_jpeg(const uint8_t* src, size_t src_len, uint8_t** out,
+                                           size_t* out_len, size_t* width, size_t* height,
+                                           size_t* stride) {
     ESP_LOGD(TAG, "Decoding JPEG with hardware decoder");
     esp_err_t ret = ESP_OK;
 
@@ -146,11 +149,11 @@ static esp_err_t decode_with_hardware_jpeg(const uint8_t* src, size_t src_len, u
     memcpy(bit_stream, src, src_len);
 
     jpeg_decode_picture_info_t header_info;
-    ESP_GOTO_ON_ERROR(jpeg_decoder_get_info(bit_stream, src_len, &header_info), jpeg_hw_dec_failed, TAG,
-                      "Failed to get JPEG header info");
+    ESP_GOTO_ON_ERROR(jpeg_decoder_get_info(bit_stream, src_len, &header_info), jpeg_hw_dec_failed,
+                      TAG, "Failed to get JPEG header info");
 
-    ESP_LOGD(TAG, "JPEG header info: width=%d, height=%d, sample_method=%d", header_info.width, header_info.height,
-             (int)header_info.sample_method);
+    ESP_LOGD(TAG, "JPEG header info: width=%d, height=%d, sample_method=%d", header_info.width,
+             header_info.height, (int)header_info.sample_method);
 
     switch (header_info.sample_method) {
         case JPEG_DOWN_SAMPLING_GRAY:
@@ -178,14 +181,15 @@ static esp_err_t decode_with_hardware_jpeg(const uint8_t* src, size_t src_len, u
 
     uint32_t out_size = 0;
 
-    ESP_GOTO_ON_ERROR(
-        jpeg_decoder_process(jpeg_dec, &decode_cfg_rgb, bit_stream, src_len, out_buf, out_buf_len, &out_size),
-        jpeg_hw_dec_failed, TAG, "Failed to decode JPEG");
+    ESP_GOTO_ON_ERROR(jpeg_decoder_process(jpeg_dec, &decode_cfg_rgb, bit_stream, src_len, out_buf,
+                                           out_buf_len, &out_size),
+                      jpeg_hw_dec_failed, TAG, "Failed to decode JPEG");
 
     ESP_LOGD(TAG, "Expected %d bytes, got %" PRIu32 " bytes", out_buf_len, out_size);
 
     if (out_size != out_buf_len) {
-        ESP_LOGE(TAG, "Decoded image size mismatch: Expected %zu bytes, got %" PRIu32 " bytes", out_buf_len, out_size);
+        ESP_LOGE(TAG, "Decoded image size mismatch: Expected %zu bytes, got %" PRIu32 " bytes",
+                 out_buf_len, out_size);
         ret = ESP_ERR_INVALID_SIZE;
         goto jpeg_hw_dec_failed;
     }
@@ -242,13 +246,13 @@ jpeg_hw_dec_failed:
 }
 #endif  // CONFIG_XIAOZHI_ENABLE_HARDWARE_JPEG_DECODER
 
-esp_err_t jpeg_to_image(const uint8_t* src, size_t src_len, uint8_t** out, size_t* out_len, size_t* width,
-                        size_t* height, size_t* stride) {
+esp_err_t jpeg_to_image(const uint8_t* src, size_t src_len, uint8_t** out, size_t* out_len,
+                        size_t* width, size_t* height, size_t* stride) {
 #ifdef CONFIG_XIAOZHI_ENABLE_CAMERA_DEBUG_MODE
     esp_log_level_set(TAG, ESP_LOG_DEBUG);
 #endif  // CONFIG_XIAOZHI_ENABLE_CAMERA_DEBUG_MODE
-    if (src == NULL || src_len == 0 || out == NULL || out_len == NULL || width == NULL || height == NULL ||
-        stride == NULL) {
+    if (src == NULL || src_len == 0 || out == NULL || out_len == NULL || width == NULL ||
+        height == NULL || stride == NULL) {
         ESP_LOGE(TAG, "Invalid parameters");
         return ESP_ERR_INVALID_ARG;
     }

@@ -2,9 +2,9 @@
 #define KNOB_H_
 
 #include <driver/gpio.h>
-#include <functional>
 #include <esp_log.h>
 #include <iot_knob.h>
+#include <functional>
 
 class Knob {
 public:
@@ -22,4 +22,4 @@ private:
     std::function<void(bool)> on_rotate_;
 };
 
-#endif // KNOB_H_
+#endif  // KNOB_H_

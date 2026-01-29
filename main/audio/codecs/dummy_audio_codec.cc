@@ -8,13 +8,8 @@ DummyAudioCodec::DummyAudioCodec(int input_sample_rate, int output_sample_rate) 
     output_sample_rate_ = output_sample_rate;
 }
 
-DummyAudioCodec::~DummyAudioCodec() {
-}
+DummyAudioCodec::~DummyAudioCodec() {}
 
-int DummyAudioCodec::Read(int16_t* dest, int samples) {
-    return 0;
-}
+int DummyAudioCodec::Read(int16_t* dest, int samples) { return 0; }
 
-int DummyAudioCodec::Write(const int16_t* data, int samples) {
-    return 0;
-}
+int DummyAudioCodec::Write(const int16_t* data, int samples) { return 0; }

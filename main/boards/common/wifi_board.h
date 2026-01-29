@@ -1,10 +1,10 @@
 #ifndef WIFI_BOARD_H
 #define WIFI_BOARD_H
 
-#include "board.h"
+#include <esp_timer.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/event_groups.h>
-#include <esp_timer.h>
+#include "board.h"
 
 class WifiBoard : public Board {
 protected:
@@ -39,31 +39,32 @@ protected:
 public:
     WifiBoard();
     virtual ~WifiBoard();
-    
+
     virtual std::string GetBoardType() override;
-    
+
     /**
      * Start network connection asynchronously
-     * This function returns immediately. Network events are notified through the callback set by SetNetworkEventCallback().
+     * This function returns immediately. Network events are notified through the callback set by
+     * SetNetworkEventCallback().
      */
     virtual void StartNetwork() override;
-    
+
     virtual NetworkInterface* GetNetwork() override;
     virtual void SetNetworkEventCallback(NetworkEventCallback callback) override;
     virtual const char* GetNetworkStateIcon() override;
     virtual void SetPowerSaveLevel(PowerSaveLevel level) override;
     virtual AudioCodec* GetAudioCodec() override { return nullptr; }
     virtual std::string GetDeviceStatusJson() override;
-    
+
     /**
      * Enter WiFi configuration mode (thread-safe, can be called from any task)
      */
     void EnterWifiConfigMode();
-    
+
     /**
      * Check if in WiFi config mode
      */
     bool IsInWifiConfigMode() const;
 };
 
-#endif // WIFI_BOARD_H
+#endif  // WIFI_BOARD_H

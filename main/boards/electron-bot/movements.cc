@@ -13,13 +13,9 @@ Otto::Otto() {
     }
 }
 
-Otto::~Otto() {
-    DetachServos();
-}
+Otto::~Otto() { DetachServos(); }
 
-unsigned long IRAM_ATTR millis() {
-    return (unsigned long)(esp_timer_get_time() / 1000ULL);
-}
+unsigned long IRAM_ATTR millis() { return (unsigned long)(esp_timer_get_time() / 1000ULL); }
 
 void Otto::Init(int right_pitch, int right_roll, int left_pitch, int left_roll, int body,
                 int head) {
@@ -199,13 +195,9 @@ void Otto::Home(bool hands_down) {
     vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
-bool Otto::GetRestState() {
-    return is_otto_resting_;
-}
+bool Otto::GetRestState() { return is_otto_resting_; }
 
-void Otto::SetRestState(bool state) {
-    is_otto_resting_ = state;
-}
+void Otto::SetRestState(bool state) { is_otto_resting_ = state; }
 
 ///////////////////////////////////////////////////////////////////
 //-- PREDETERMINED MOTION SEQUENCES -----------------------------//

@@ -1,10 +1,9 @@
 #ifndef ML307_BOARD_H
 #define ML307_BOARD_H
 
-#include <memory>
 #include <at_modem.h>
+#include <memory>
 #include "board.h"
-
 
 class Ml307Board : public Board {
 protected:
@@ -18,7 +17,7 @@ protected:
 
     // Internal helper to trigger network event callback
     void OnNetworkEvent(NetworkEvent event, const std::string& data = "");
-    
+
     // Network initialization task (runs in FreeRTOS task)
     static void NetworkTaskEntry(void* arg);
     void NetworkTask();
@@ -35,4 +34,4 @@ public:
     virtual std::string GetDeviceStatusJson() override;
 };
 
-#endif // ML307_BOARD_H
+#endif  // ML307_BOARD_H

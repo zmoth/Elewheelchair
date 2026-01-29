@@ -29,9 +29,7 @@ Oscillator::Oscillator(int trim) {
     previous_millis_ = 0;
 }
 
-Oscillator::~Oscillator() {
-    Detach();
-}
+Oscillator::~Oscillator() { Detach(); }
 
 uint32_t Oscillator::AngleToCompare(int angle) {
     return (angle - SERVO_MIN_DEGREE) * (SERVO_MAX_PULSEWIDTH_US - SERVO_MIN_PULSEWIDTH_US) /
@@ -103,9 +101,7 @@ void Oscillator::SetT(unsigned int T) {
     inc_ = 2 * M_PI / number_samples_;
 }
 
-void Oscillator::SetPosition(int position) {
-    Write(position);
-}
+void Oscillator::SetPosition(int position) { Write(position); }
 
 void Oscillator::Refresh() {
     if (NextSample()) {

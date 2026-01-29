@@ -10,7 +10,7 @@
 
 /**
  * DeviceStateMachine - Manages device state transitions with validation
- * 
+ *
  * This class ensures strict state transition rules and provides a callback mechanism
  * for components to react to state changes.
  */
@@ -80,4 +80,4 @@ private:
     void NotifyStateChange(DeviceState old_state, DeviceState new_state);
 };
 
-#endif // DEVICE_STATE_MACHINE_H
+#endif  // DEVICE_STATE_MACHINE_H
